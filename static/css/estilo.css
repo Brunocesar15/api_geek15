@@ -303,3 +303,30 @@ input, textarea, select {
     border: 2px solid #f1c40f !important;
     transform: scale(1.02); /* Fica um pouquinho maior */
 }
+
+/* Botão de Compartilhar no Card */
+.btn-compartilhar {
+    position: absolute;
+    bottom: 85px; /* Ajuste conforme o layout do seu card */
+    right: 15px;
+    background: #25D366;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.btn-compartilhar:hover {
+    transform: scale(1.1);
+    background: #128C7E;
+}
+
+/* Garante que o clique no compartilhar não abra o modal do produto */
+.btn-compartilhar img {
+    filter: brightness(0) invert(1); /* Deixa o ícone branco */
+}
