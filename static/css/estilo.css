@@ -1,0 +1,305 @@
+:root {
+    --primary: #1a2a6c;
+    --accent: #f39c12;
+    --bg: #f0f2f5;
+    --white: #ffffff;
+    --text: #333;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg);
+    margin: 0;
+    color: var(--text);
+}
+
+/* Header */
+header {
+    background: var(--white);
+    padding: 15px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--primary);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.link-nav {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Container do Formulário */
+.container-admin {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.card-form {
+    background: var(--white);
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-top: 0;
+    color: var(--primary);
+    text-align: center;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin-bottom: 25px;
+}
+
+/* Campos do Form */
+.campo {
+    margin-bottom: 15px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box; /* Garante que o padding não estoure a largura */
+}
+
+.linha-dupla {
+    display: flex;
+    gap: 15px;
+}
+
+/* Botão */
+.btn-acao {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 15px;
+    width: 100%;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+.btn-acao:hover {
+    background: #121d4d;
+}
+/* Estilos da Vitrine/Loja */
+.banner {
+    width: 100%;
+    height: 350px;
+    /* Substitua o link da internet pelo caminho local: */
+    background: linear-gradient(rgba(26,42,108,0.7), rgba(26,42,108,0.7)), 
+                url('/static/img/banner-fachada.png'); 
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.banner-conteudo h1 { font-size: 3rem; margin-bottom: 10px; }
+.banner-conteudo p { font-size: 1.2rem; opacity: 0.9; }
+
+.container-loja { padding: 40px 5%; }
+.titulo-sessao { border-left: 5px solid var(--accent); padding-left: 15px; margin-bottom: 30px; }
+
+/* Grid e Cards */
+.grid-produtos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.card-produto {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+}
+
+.card-produto:hover { transform: translateY(-10px); }
+
+.imagem-container { position: relative; height: 200px; }
+.imagem-container img { width: 100%; height: 100%; object-fit: cover; }
+
+.tag-categoria {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--primary);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.produto-info { padding: 20px; }
+.produto-info h3 { margin: 0; font-size: 1.2rem; }
+.descricao-curta { color: #777; font-size: 0.9rem; height: 40px; overflow: hidden; margin: 10px 0; }
+
+.preco-container { margin-bottom: 15px; color: var(--primary); }
+.valor { font-size: 1.6rem; font-weight: bold; }
+.moeda { font-size: 0.9rem; margin-right: 5px; }
+
+
+.btn-whatsapp {
+    background-color: #25D366 !important;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128C7E !important;
+}
+
+/* Estilos do Rodapé */
+.rodape {
+    background-color: var(--primary);
+    color: white;
+    padding: 40px 5% 20px 5%;
+    margin-top: 50px;
+}
+
+.rodape-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.rodape-info h3, .rodape-horario h4 {
+    color: var(--accent);
+    margin-bottom: 15px;
+}
+
+.rodape-info p, .rodape-horario p {
+    margin: 5px 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.rodape-direitos {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+/* Ajuste para celulares */
+@media (max-width: 600px) {
+    .rodape-container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+/* Estilos do Modal */
+.modal {
+    display: none; /* Escondido */
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-conteudo {
+    background-color: white;
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 900px;
+    border-radius: 15px;
+    position: relative;
+    animation: abrirModal 0.3s ease-out;
+}
+
+@keyframes abrirModal { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+
+.fechar { position: absolute; right: 20px; top: 10px; font-size: 30px; cursor: pointer; color: #666; }
+
+.modal-corpo { display: flex; gap: 30px; padding: 20px; flex-wrap: wrap; }
+.modal-imagem img { width: 100%; max-width: 400px; border-radius: 10px; object-fit: cover; }
+.modal-detalhes { flex: 1; min-width: 300px; }
+.modal-preco { font-size: 2rem; color: var(--primary); font-weight: bold; margin: 20px 0; }
+.tag-categoria-modal { background: #eee; display: inline-block; padding: 5px 15px; border-radius: 20px; margin-bottom: 10px; }
+
+/* Ajuste do Modal para Celular */
+@media (max-width: 768px) {
+    .modal-corpo {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .modal-imagem img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .modal-conteudo {
+        width: 95%;
+        margin: 10% auto;
+    }
+}
+/* Suavizar a entrada do fundo escuro */
+.modal {
+    transition: opacity 0.3s ease;
+}
+.btn-acao:active {
+    transform: scale(0.98);
+}
+/* Selo de Oferta VIP */
+.selo-oferta {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #f1c40f; /* Amarelo Ouro */
+    color: #000;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: 1px solid #d4ac0d;
+}
+
+/* Card de Destaque com leve borda dourada */
+.card-destaque-especial {
+    border: 2px solid #f1c40f !important;
+    transform: scale(1.02); /* Fica um pouquinho maior */
+}

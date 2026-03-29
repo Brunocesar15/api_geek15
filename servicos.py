@@ -65,21 +65,25 @@ class ProdutoServico:
             consulta = select(ProdutoModel).where(ProdutoModel.id == id)
             produto = sessao.exec(consulta).one_or_none()
         
-        if not produto:
-            return None
-        
-        # Atualiza os campos usando o dicionário
-        produto.nome = dados["nome"]
-        produto.preco = dados["preco"]
-        produto.categoria = dados["categoria"]
-        produto.descricao = dados["descricao"]
-        produto.quantidade_estoque = dados["quantidade_estoque"]
-        
-        # Só atualiza a imagem se ela foi enviada
-        if "imagem_url" in dados:
-            produto.imagem_url = dados["imagem_url"]
-        
-        sessao.add(produto)
-        sessao.commit()
-        sessao.refresh(produto)
-        return produto
+            if not produto:
+                return None
+            
+            # ATENÇÃO: Tudo abaixo deve estar DENTRO do 'with Session'
+            produto.nome = dados["nome"]
+            produto.preco = dados["preco"]
+            produto.categoria = dados["categoria"]
+            produto.descricao = dados["descricao"]
+            produto.quantidade_estoque = dados["quantidade_estoque"]
+            
+            # Nova linha para os Destaques da Dadores Móveis
+            if "destaque" in dados:
+                produto.destaque = dados["destaque"]
+            
+            # Só atualiza a imagem se ela foi enviada no dicionário
+            if "imagem_url" in dados:
+                produto.imagem_url = dados["imagem_url"]
+            
+            sessao.add(produto)
+            sessao.commit()
+            sessao.refresh(produto)
+            return produto

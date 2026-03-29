@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dadores Móveis e Eletros</title>
+    <link rel="stylesheet" href="/static/css/estilo.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-container" style="display: flex; align-items: center; gap: 15px;">
+            <img src="/static/img/logo-dm.jpg" alt="Logo DM" style="height: 60px; border-radius: 5px;">
+            <div class="logo-texto">
+                <span style="display: block; font-weight: bold; color: var(--primary); font-size: 1.2rem;">DASDORES MÓVEIS & ELETROS</span>
+            </div>
+        </div>
+        <nav>
+            <a href="/admin" class="link-nav">Entrar</a>
+        </nav>
+    </header>
+
+    <section class="banner">
+        <div class="banner-conteudo">
+            <h1>Sua casa merece o melhor</h1>
+            <p>Ofertas exclusivas em móveis e eletrodomésticos com a qualidade que você confia.</p>
+        </div>
+    </section>
+    <section class="container-loja">
+        <div class="titulo-sessao">
+            <h2>🔥 Ofertas em Destaque</h2>
+            <p>As melhores escolhas da Dadores Móveis para você!</p>
+        </div>
+        <div id="gridDestaques" class="grid-produtos">
+            </div>
+    </section>
+
+    <hr style="opacity: 0.1; margin: 40px 5%;">
+
+    <div class="container-loja">
+        <h2 class="titulo-sessao">Destaques da Semana</h2>
+        <p style="margin-bottom: 20px; color: #666;">Clique no produto para ver detalhes e comprar.</p>
+        <div id="vitrine" class="grid-produtos">
+            </div>
+    </div>
+
+    <div id="modalProduto" class="modal">
+        <div class="modal-conteudo">
+            <span class="fechar" onclick="fecharModal()">&times;</span>
+            <div class="modal-corpo">
+                <div class="modal-imagem">
+                    <img id="modalImg" src="" alt="">
+                </div>
+                <div class="modal-detalhes">
+                    <h2 id="modalNome" style="color: var(--primary);"></h2>
+                    <span id="modalCategoria" class="tag-categoria-modal" style="background: #f0f0f0; padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; display: inline-block; margin-bottom: 15px;"></span>
+                    <p id="modalDescricao" style="line-height: 1.6; color: #444; margin-bottom: 20px;"></p>
+                    <div class="modal-preco" id="modalPreco" style="font-size: 1.8rem; font-weight: bold; color: var(--primary); margin-bottom: 20px;"></div>
+                    <div id="modalLinkZap"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="rodape">
+        <div class="rodape-container">
+            <div class="rodape-info">
+                <h3>DADORES MÓVEIS E ELETROS</h3>
+                <p>📍 Rua Ulisses Carmo, 353 - Centro</p>
+                <p>🏙️ Miguel Alves - PI</p>
+                <p>📞 WhatsApp: (86) 99410-0282</p>
+            </div>
+            <div class="rodape-horario">
+                <h4>Horário de Atendimento</h4>
+                <p>Segunda a Sexta: 08h às 18h</p>
+                <p>Sábado: 08h às 12h</p>
+            </div>
+            <div class="rodape-links">
+                <h4>Navegação</h4>
+                <p><a href="/admin" style="color: white; text-decoration: none; opacity: 0.8;">Painel Administrativo</a></p>
+            </div>
+        </div>
+        <div class="rodape-direitos">
+            <p>2026 Dadores Móveis e Eletros - Miguel Alves, Piauí.</p>
+            <p>&copy; Bruno Sousa - brunocesaralves014@gmail.com</p>
+        </div>
+    </footer>
+
+    <script>
+        // Função para carregar os produtos da API
+async function carregarProdutos() {
+    try {
+        const res = await fetch('/api/produtos/');
+        const produtos = await res.json();
+        
+        const vitrine = document.getElementById('vitrine');
+        const gridDestaques = document.getElementById('gridDestaques');
+
+        if (!produtos || produtos.length === 0) {
+            vitrine.innerHTML = "<p>Nenhum produto cadastrado no momento.</p>";
+            return;
+        }
+
+        // 1. FILTRAR PRODUTOS (Destaques vs Restante)
+        const produtosDestaque = produtos.filter(p => p.destaque === true);
+        const produtosComuns = produtos; // Mantemos todos na vitrine principal ou filtramos se preferir
+
+        // 2. GERAR CARDS DE DESTAQUE (Seção Superior)
+        if (produtosDestaque.length > 0) {
+            gridDestaques.innerHTML = produtosDestaque.map(p => criarCardHTML(p, true)).join('');
+        } else {
+            // Se não houver nenhum marcado, podemos esconder a seção ou mostrar mensagem
+            document.querySelector('.container-loja').style.display = 'none';
+        }
+
+        // 3. GERAR VITRINE COMPLETA (Seção Inferior)
+        vitrine.innerHTML = produtosComuns.map(p => criarCardHTML(p, false)).join('');
+
+    } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+        document.getElementById('vitrine').innerHTML = "<p>Erro ao conectar com o servidor.</p>";
+    }
+}
+
+// Função auxiliar para criar o HTML do Card (Evita repetição de código)
+function criarCardHTML(p, ehDestaque) {
+    const dadosLimpos = JSON.stringify(p).replace(/"/g, '&quot;');
+    
+    // Se for destaque, adicionamos uma classe extra e um selo
+    const classeDestaque = ehDestaque ? 'card-destaque-especial' : '';
+    const seloDestaque = ehDestaque ? `<span class="selo-oferta">OFERTA VIP</span>` : '';
+
+    return `
+        <div class="card-produto ${classeDestaque}" onclick="abrirModal(${dadosLimpos})" style="cursor: pointer; position: relative;">
+            ${seloDestaque}
+            <div class="imagem-container">
+                <img src="${p.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Foto'}" alt="${p.nome}">
+                <span class="tag-categoria">${p.categoria}</span>
+            </div>
+            <div class="produto-info">
+                <h3>${p.nome}</h3>
+                <div class="preco-container">
+                    <span class="moeda">R$</span>
+                    <span class="valor">${p.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--primary); font-weight: bold;">Ver detalhes</p>
+            </div>
+        </div>
+    `;
+}
+
+// Função para abrir o modal com detalhes
+function abrirModal(p) {
+    document.getElementById('modalNome').innerText = p.nome;
+    document.getElementById('modalDescricao').innerText = p.descricao || "Sem descrição disponível.";
+    document.getElementById('modalCategoria').innerText = p.categoria;
+    document.getElementById('modalPreco').innerText = `R$ ${p.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+    document.getElementById('modalImg').src = p.imagem_url || 'https://via.placeholder.com/300x200?text=Sem+Foto';
+    
+    const msg = encodeURIComponent(`Olá! Vi o produto *${p.nome}* no site e gostaria de saber mais informações.`);
+    document.getElementById('modalLinkZap').innerHTML = `
+        <a href="https://wa.me/5586994100282?text=${msg}" target="_blank" style="text-decoration: none;">
+            <button class="btn-acao" style="background: #25D366; width: 100%; border: none; padding: 15px; color: white; font-weight: bold; border-radius: 8px; cursor: pointer;">
+                🛒 Pedir pelo WhatsApp
+            </button>
+        </a>
+    `;
+    
+    document.getElementById('modalProduto').style.display = "block";
+}
+
+function fecharModal() {
+    document.getElementById('modalProduto').style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('modalProduto');
+    if (event.target == modal) fecharModal();
+}
+
+carregarProdutos();
+    </script>
+</body>
+</html>
