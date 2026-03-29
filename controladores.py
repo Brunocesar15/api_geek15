@@ -1,7 +1,8 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, File, UploadFile, Form
 from modelos import ProdutoModel
 from servicos import ProdutoServico
-from dtos import ProdutoDTO, AtualizarEstoqueDTO
+import os
+import uuid
 
 # Objeto de rotas
 roteador_produtos = APIRouter()
@@ -9,48 +10,88 @@ roteador_produtos = APIRouter()
 # Serviço de produtos
 produto_servico = ProdutoServico()
 
+
+
+@roteador_produtos.post("", status_code=status.HTTP_201_CREATED) # Removido a barra
+
+async def adicionar_produto(
+    nome: str = Form(...),
+    descricao: str = Form(...),
+    preco: float = Form(...),
+    quantidade_estoque: int = Form(...),
+    categoria: str = Form(...),
+    imagem: UploadFile = File(...)
+):
+    # Lógica de salvar imagem
+    extensao = os.path.splitext(imagem.filename)[1]
+    nome_arquivo = f"{uuid.uuid4()}{extensao}"
+    caminho = os.path.join("static/uploads", nome_arquivo)
+    
+    with open(caminho, "wb") as buffer:
+        buffer.write(await imagem.read())
+
+    # Criar modelo para o banco
+    novo_produto = ProdutoModel(
+        nome=nome,
+        descricao=descricao,
+        preco=preco,
+        quantidade_estoque=quantidade_estoque,
+        categoria=categoria,
+        imagem_url=f"/static/uploads/{nome_arquivo}"
+    )
+    return produto_servico.salvar_produto(novo_produto)
+
+# As outras rotas de GET, PUT e DELETE permanecem similares
 @roteador_produtos.get("/{id}")
 def obter_produto_por_id(id: int):
     return produto_servico.obter_produto_por_id(id=id)
 
+@roteador_produtos.put("/{id}")
+async def editar_produto(
+    id: int,
+    nome: str = Form(...),
+    descricao: str = Form(...),
+    preco: float = Form(...),
+    quantidade_estoque: int = Form(...),
+    categoria: str = Form(...),
+    imagem: UploadFile = File(None) # None pois a imagem é opcional na edição
+):
+    # 1. Preparamos os dados básicos
+    dados_atualizados = {
+        "nome": nome,
+        "descricao": descricao,
+        "preco": preco,
+        "quantidade_estoque": quantidade_estoque,
+        "categoria": categoria
+    }
+
+    # 2. Lógica para nova imagem (se o usuário enviou uma)
+    if imagem and imagem.filename:
+        extensao = os.path.splitext(imagem.filename)[1]
+        nome_arquivo = f"{uuid.uuid4()}{extensao}"
+        caminho = os.path.join("static/uploads", nome_arquivo)
+        
+        with open(caminho, "wb") as buffer:
+            buffer.write(await imagem.read())
+        
+        dados_atualizados["imagem_url"] = f"/static/uploads/{nome_arquivo}"
+
+    # 3. Chama o serviço passando o dicionário
+    produto = produto_servico.atualizar_produto(id, dados_atualizados)
+    
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    
+    return produto
+
 @roteador_produtos.get("/")
-def listar_produtos(nome: str | None = None, preco: float | None = None, categoria: str | None = None, franquia: str | None = None):
-    return produto_servico.listar_produtos(nome=nome, preco=preco, categoria=categoria, franquia=franquia)
+def listar_produtos(nome: str | None = None, preco: float | None = None, categoria: str | None = None):
+    return produto_servico.listar_produtos(nome=nome, preco=preco, categoria=categoria)
 
-@roteador_produtos.post('/', 
-    response_model=ProdutoModel, 
-    status_code=status.HTTP_201_CREATED)
-def adicionar_produto(produto: ProdutoDTO):
-    novo_produto = ProdutoModel(
-        nome=produto.nome,
-        descricao=produto.descricao,
-        preco=produto.preco,
-        quantidade_estoque=produto.quantidade_estoque,
-        categoria=produto.categoria,
-        franquia=produto.franquia
-    )
-    return produto_servico.salvar_produto(novo_produto)
-
-@roteador_produtos.put('/{id}')
-def atualizar_produto(id: int, produto: ProdutoDTO):
-    produto_atualizado = ProdutoModel(
-        nome=produto.nome,
-        descricao=produto.descricao,
-        preco=produto.preco,
-        quantidade_estoque=produto.quantidade_estoque,
-        categoria=produto.categoria,
-        franquia=produto.franquia
-    )
-    return produto_servico.atualizar_produto(produto=produto_atualizado, id=id)
-
-@roteador_produtos.put("/estoque/{id}")
-def atualizar_estoque(id: int, dados: AtualizarEstoqueDTO):
-    try:
-        produto_atualizado = produto_servico.atualizar_estoque(id=id, dados_estoque=dados)
-        return produto_atualizado
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-@roteador_produtos.delete('/{id}')
-def deletar_produto(id: int):
-    return produto_servico.deletar_produto(id=id)
+@roteador_produtos.delete("/{id}")
+def excluir_produto(id: int):
+    # Aqui chamamos a função que acabamos de criar acima
+    sucesso = produto_servico.excluir_produto(id=id)
+    if not sucesso:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    return {"mensagem": "Produto removido com sucesso"}

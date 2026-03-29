@@ -1,7 +1,7 @@
 from sqlmodel import Session, select
 from sqlalchemy import update
 from banco_dados import obter_engine
-from modelos import ProdutoModel
+from modelos import ProdutoModel  # Este é o nome correto do seu modelo
 from fastapi import status, HTTPException
 from dtos import ProdutoDTO, AtualizarEstoqueDTO
 
@@ -14,18 +14,16 @@ class ProdutoServico:
             consulta = select(ProdutoModel).where(ProdutoModel.id == id)
             return sessao.exec(consulta).one_or_none()
   
-    def listar_produtos(self, nome: str | None = None, preco: float | None = None, categoria: str | None = None, franquia: str | None = None):
+    def listar_produtos(self, nome: str | None = None, preco: float | None = None, categoria: str | None = None):
         with Session(self.engine) as sessao:
+            consulta = select(ProdutoModel)
             if nome:
-                consulta = select(ProdutoModel).where(ProdutoModel.nome == nome)
-            elif preco:
-                consulta = select(ProdutoModel).where(ProdutoModel.preco == preco)
-            elif categoria:
-                consulta = select(ProdutoModel).where(ProdutoModel.categoria == categoria)
-            elif franquia:
-                consulta = select(ProdutoModel).where(ProdutoModel.franquia == franquia)
-            else:
-                consulta = select(ProdutoModel)
+                consulta = consulta.where(ProdutoModel.nome.contains(nome)) # Busca aproximada
+            if preco:
+                consulta = consulta.where(ProdutoModel.preco <= preco)
+            if categoria:
+                consulta = consulta.where(ProdutoModel.categoria == categoria)
+                
             return sessao.exec(consulta).all()
   
     def salvar_produto(self, produto: ProdutoModel):
@@ -50,12 +48,38 @@ class ProdutoServico:
             sessao.refresh(produto)
             return produto
 
-    def deletar_produto(self, id: int):
+    def excluir_produto(self, id: int):
         with Session(self.engine) as sessao:
-            produto = self.obter_produto_por_id(id)
-            if produto.quantidade_estoque > 0:
-                raise HTTPException(status_code=400, detail="Não é possível deletar produto com estoque")
-
+            # Buscamos o produto diretamente na sessão atual
+            consulta = select(ProdutoModel).where(ProdutoModel.id == id)
+            produto = sessao.exec(consulta).one_or_none()
+            
+            if not produto:
+                return False # Retorna Falso se não achar, para o controlador dar o erro 404
+            
             sessao.delete(produto)
             sessao.commit()
-            return {"mensagem": "Produto deletado com sucesso"}
+            return True
+    def atualizar_produto(self, id: int, dados: dict):
+        with Session(self.engine) as sessao:
+            consulta = select(ProdutoModel).where(ProdutoModel.id == id)
+            produto = sessao.exec(consulta).one_or_none()
+        
+        if not produto:
+            return None
+        
+        # Atualiza os campos usando o dicionário
+        produto.nome = dados["nome"]
+        produto.preco = dados["preco"]
+        produto.categoria = dados["categoria"]
+        produto.descricao = dados["descricao"]
+        produto.quantidade_estoque = dados["quantidade_estoque"]
+        
+        # Só atualiza a imagem se ela foi enviada
+        if "imagem_url" in dados:
+            produto.imagem_url = dados["imagem_url"]
+        
+        sessao.add(produto)
+        sessao.commit()
+        sessao.refresh(produto)
+        return produto
